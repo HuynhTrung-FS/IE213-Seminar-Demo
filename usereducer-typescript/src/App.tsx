@@ -1,51 +1,28 @@
-import React, { useReducer } from "react";
+import React, { Reducer, useReducer } from "react";
 import "./App.css";
-interface AppState {
-  count: number;
-}
-
-interface AppAction {
-  type: string;
-}
-
-const initialState: AppState = { count: 0 };
-
-function reducer(state: AppState, action: AppAction) {
-  switch (action.type) {
-    case "increment":
-      return { count: state.count + 1 };
-    case "decrement":
-      return { count: state.count - 1 };
-    default:
-      throw new Error();
-  }
-}
+import { AuthState, AuthAction, authReducer, authState } from "./auth_reducer";
+import axios from "axios";
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+	const [state, dispatch] = useReducer<Reducer<AuthState, AuthAction>>(authReducer, authState);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Demo useReducer</h1>
-        <p>Count: {state.count}</p>
-        <div>
-          <button
-            onClick={() => dispatch({ type: "decrement" })}
-            style={{ margin: 20 }}
-          >
-            Decrease
-          </button>
-          <button
-            onClick={() => dispatch({ type: "increment" })}
-            style={{ margin: 20 }}
-          >
-            Increase
-          </button>
-        </div>
-      </header>
-    </div>
-  );
+	async function submit(data: any) {
+		try {
+			const response = await axios.post("/api/login", { data });
+
+			dispatch({
+				type: "success",
+				value: response.data.user,
+			});
+		} catch (error: any) {
+			dispatch({
+				type: "failure",
+				value: error.message,
+			});
+		}
+	}
+
+	return <div>Login Form</div>;
 }
 
 export default App;
